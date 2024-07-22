@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rainbow with Clouds, Sun, and Sparkles</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #87CEEB; /* Sky blue background */
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        function drawRainbow() {
+            const colors = ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#8B00FF'];
+            const radius = 400;
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height;
+
+            for (let i = 0; i < colors.length; i++) {
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius - i * 20, Math.PI, 2 * Math.PI);
+                ctx.strokeStyle = colors[i];
+                ctx.lineWidth = 20;
+                ctx.stroke();
+            }
+        }
+
+        function drawCloud(x, y, size) {
+            ctx.beginPath();
+            ctx.arc(x, y, size, Math.PI * 0.5, Math.PI * 1.5);
+            ctx.arc(x + size, y - size, size, Math.PI * 1, Math.PI * 2);
+            ctx.arc(x + size * 2, y - size, size, Math.PI * 1, Math.PI * 2);
+            ctx.arc(x + size * 3, y, size, Math.PI * 1.5, Math.PI * 0.5);
+            ctx.moveTo(x + size * 3, y + size);
+            ctx.lineTo(x, y + size);
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function drawSparkle(x, y, size, opacity) {
+            ctx.beginPath();
+            ctx.arc(x, y, size, 0, 2 * Math.PI);
+            ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function drawSun(x, y, radius) {
+            const gradient = ctx.createRadialGradient(x, y, radius * 0.5, x, y, radius);
+            gradient.addColorStop(0, 'rgba(255, 255, 0, 1)');
+            gradient.addColorStop(1, 'rgba(255, 255, 0, 0)');
+            
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, 2 * Math.PI);
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function animateScene() {
+            const clouds = [
+                { x: -100, y: 100, size: 40, speed: 0.5 },
+                { x: -200, y: 150, size: 50, speed: 0.3 },
+                { x: -300, y: 200, size: 60, speed: 0.4 },
+            ];
+
+            const sparkles = Array.from({ length: 50 }, () => ({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height / 2,
+                size: Math.random() * 3,
+                opacity: Math.random(),
+                speed: Math.random() * 0.02 + 0.01
+            }));
+
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Draw sun at the top-left corner
+                drawSun(100, 100, 80);
+
+                // Draw rainbow
+                drawRainbow();
+
+                // Draw clouds
+                clouds.forEach(cloud => {
+                    drawCloud(cloud.x, cloud.y, cloud.size);
+                    cloud.x += cloud.speed;
+                    if (cloud.x > canvas.width) {
+                        cloud.x = -cloud.size * 3;
+                    }
+                });
+
+                // Draw sparkles
+                sparkles.forEach(sparkle => {
+                    drawSparkle(sparkle.x, sparkle.y, sparkle.size, sparkle.opacity);
+                    sparkle.opacity += sparkle.speed;
+                    if (sparkle.opacity <= 0 || sparkle.opacity >= 1) {
+                        sparkle.speed = -sparkle.speed;
+                    }
+                });
+
+                // Loop the animation
+                requestAnimationFrame(draw);
+            }
+
+            draw();
+        }
+
+        // Initialize the scene
+        drawRainbow();
+        animateScene();
+    </script>
+</body>
+</html>
